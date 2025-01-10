@@ -217,6 +217,7 @@ class Modules:
                             response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
                                 "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
                                 "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
+                        print("test")
                         docker.process_api_response(response)
                         self.output.footer("PUSH COMPLETE")
 
