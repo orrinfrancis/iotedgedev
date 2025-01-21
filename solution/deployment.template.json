@@ -64,7 +64,20 @@
             "restartPolicy": "always",
             "settings": {
               "image": "${MODULES.minewModule}",
-              "createOptions": {}
+              "createOptions": {
+                "ExposedPorts": {
+                  "3001/tcp": {}
+                },
+                "HostConfig": {
+                  "PortBindings": {
+                    "3001/tcp": [
+                      {
+                        "HostPort": "3001"
+                      }
+                    ]
+                  }
+                }
+              }
             }
           }
         }

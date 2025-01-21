@@ -37,3 +37,6 @@ sudo iotedge system status
 sudo iotedge check
 
 echo "\nIOT Edge device should be configured successfully, please check the above status commands!\n"
+
+# To check the logs of a specific module, use
+# iotedge logs minewModule -f
