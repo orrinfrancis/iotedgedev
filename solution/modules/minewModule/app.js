@@ -36,14 +36,15 @@ Client.fromEnvironment(Transport, function (err, client) {
           app: app, express: express, route: "/minew",
           isPreOctetStream: false
         }; // Set true for G1 firmware v2/3
+
         barnowl.addListener(BarnowlMinew, {}, BarnowlMinew.HttpListener, options);
-        console.log('BarnOwl is listening on /minew for messages.');
         // for testing
         // barnowl.addListener(BarnowlMinew, {}, BarnowlMinew.TestListener, {});
+        console.log('BarnOwl is listening on /minew for messages.');
 
         barnowl.on('raddec', (raddec) => {
           console.log(raddec);
-          pipeMessage(raddec)
+          // pipeMessage(raddec)
         });
 
         // // Act on input messages to the module.
@@ -69,7 +70,7 @@ Client.fromEnvironment(Transport, function (err, client) {
 // }
 
 function pipeMessage(client, msg) {
-  client.complete(msg, printResultFor('Receiving message'));
+  // client.complete(msg, printResultFor('Receiving message'));
 
   if (msg) {
     client.sendOutputEvent('output1', new Message(msg), printResultFor('Sending received message'));
