@@ -10,8 +10,6 @@
     "dependencies": {
         "azure-iot-device": "^1.17.4",
         "azure-iot-device-mqtt": "^1.15.4",
-        "barnowl": "",
-        "barnowl-minew": "",
-        "express": ""
+        "express": "^4.21.2"
     }
 }

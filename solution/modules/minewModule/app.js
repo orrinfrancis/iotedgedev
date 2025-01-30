@@ -1,12 +1,15 @@
 'use strict';
 
+const minewTransmitter = require('./MinewTransmitter.js')
+
 var Transport = require('azure-iot-device-mqtt').Mqtt;
 var Client = require('azure-iot-device').ModuleClient;
 var Message = require('azure-iot-device').Message;
-var Barnowl = require('barnowl');
-var BarnowlMinew = require('barnowl-minew');
 const express = require('express');
 const http = require('http');
+let app = express();
+app.use(express.json());
+
 
 Client.fromEnvironment(Transport, function (err, client) {
   if (err) {
@@ -23,58 +26,44 @@ Client.fromEnvironment(Transport, function (err, client) {
       } else {
         console.log('IoT Hub module client initialized');
 
-        console.log('Initializing BarnOwl...');
-        let barnowl = new Barnowl({ enableMixing: true });
-
-        // for production
-        console.log('Starting HTTP server...');
-        let app = express();
-        let server = http.createServer(app);
-        server.listen(3001, function () { console.log('Listening on port 3001'); });
-
-        let options = {
-          app: app, express: express, route: "/minew",
-          isPreOctetStream: false
-        }; // Set true for G1 firmware v2/3
-
-        barnowl.addListener(BarnowlMinew, {}, BarnowlMinew.HttpListener, options);
-        // for testing
-        // barnowl.addListener(BarnowlMinew, {}, BarnowlMinew.TestListener, {});
-        console.log('BarnOwl is listening on /minew for messages.');
-
-        barnowl.on('raddec', (raddec) => {
-          console.log(raddec);
-          // pipeMessage(raddec)
+        // Express configuration
+        let expressRoute = "/minew"
+        app.post(expressRoute, (req, res) => {
+          const processed = minewTransmitter.handleTransmission(req.body);
+          if (processed) {
+            for (const data of processed) {
+              if (data) {
+                pipeMessage(client, data.frame.type, JSON.stringify(data))
+              }
+            }
+          }
+          res.sendStatus(200);
         });
+        console.log(`Express is listening on ${expressRoute}`);
 
-        // // Act on input messages to the module.
-        // client.on('inputMessage', function (inputName, msg) {
-        //   pipeMessage(client, inputName, msg);
+        // Barnowl configuration
+        // console.log('Initializing BarnOwl...');
+        // let barnowl = new Barnowl({ enableMixing: true });
+        // let options = {
+        //   app: app, express: express, route: "/minew",
+        //   isPreOctetStream: false
+        // }; // Set true for G1 firmware v2/3
+        // barnowl.addListener(BarnowlMinew, {}, BarnowlMinew.HttpListener, options);
+        // barnowl.on('raddec', (raddec) => {
+        //   console.log(raddec);
+        //   pipeMessage(client, raddec)
         // });
+        // console.log(`BarnOwl is listening on ${options.route}`);
+
+        let server = http.createServer(app);
+        server.listen(3001, function () { console.log('Server is listening on port 3001'); });
       }
     });
   }
 });
 
-// This function just pipes the messages without any change.
-// function pipeMessage(client, inputName, msg) {
-//   client.complete(msg, printResultFor('Receiving message'));
-
-//   if (inputName === 'input1') {
-//     var message = msg.getBytes().toString('utf8');
-//     if (message) {
-//       var outputMsg = new Message(message);
-//       client.sendOutputEvent('output1', outputMsg, printResultFor('Sending received message'));
-//     }
-//   }
-// }
-
-function pipeMessage(client, msg) {
-  // client.complete(msg, printResultFor('Receiving message'));
-
-  if (msg) {
-    client.sendOutputEvent('output1', new Message(msg), printResultFor('Sending received message'));
-  }
+function pipeMessage(client, output, msg) {
+  client.sendOutputEvent(output, new Message(msg), printResultFor('Sending received message'));
 }
 
 // Helper function to print results in the console
