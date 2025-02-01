@@ -79,6 +79,29 @@
                 }
               }
             }
+          },
+          "arubaModule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.arubaModule}",
+              "createOptions": {
+                "ExposedPorts": {
+                  "3002/tcp": {}
+                },
+                "HostConfig": {
+                  "PortBindings": {
+                    "3002/tcp": [
+                      {
+                        "HostPort": "3002"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
           }
         }
       }
