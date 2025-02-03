@@ -102,6 +102,30 @@
                 }
               }
             }
+          },
+          "minewACC": {
+            "env": {
+              "PlanId": {
+                "value": "stream-analytics-on-iot-edge"
+              }
+            },
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/azure-stream-analytics/azureiotedge:1.0.14"
+            },
+            "status": "running",
+            "type": "docker",
+            "version": "1.0.0.0"
+          },
+          "grafanaForwarder": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.grafanaForwarder}",
+              "createOptions": {}
+            }
           }
         }
       }
@@ -110,11 +134,23 @@
       "properties.desired": {
         "schemaVersion": "1.2",
         "routes": {
-          "minewModuleToIoTHub": "FROM /messages/modules/minewModule/outputs/* INTO $upstream"
+          "minewModuleToSA": "FROM /messages/modules/minewModule/outputs/ACC INTO BrokeredEndpoint(\"/modules/minewACC/inputs/ACC\")",
+          "grafanaForwarderToLoki": "FROM /messages/modules/minewACC/outputs/* INTO BrokeredEndpoint(\"/modules/grafanaForwarder/inputs/forward\")"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
         }
+      }
+    },
+    "minewModule": {
+      "properties.desired": {}
+    },
+    "minewACC": {
+      "properties.desired": {
+        "ASAJobInfo": "https://iotedgedevstorageaccount.blob.core.windows.net/asa-edge-eb2430b1-0a5c-4f39-9309-8237f05d0c91/ASAEdgeJobs/eb2430b1-0a5c-4f39-9309-8237f05d0c91/0638737920000000000.d72f5887-befd-4ee7-a59f-846517e43a52/ASAEdgeJobDefinition.zip?sv=2023-08-03&se=2028-01-30T10%3A33%3A18Z&sr=b&sp=r&sig=SyWxqTwPcBVKjarTw3f96pqvW%2FFMURtganLGufEB350%3D",
+        "ASAJobResourceId": "/subscriptions/f13802b7-fde4-4dd8-ad05-16734900b3c0/resourceGroups/iotedgedev-rg/providers/Microsoft.StreamAnalytics/streamingjobs/minewACC",
+        "ASAJobEtag": "c5bfd611-8ce5-4921-bcd0-16e3159299ea",
+        "PublishTimestamp": "1/30/2025 10:33:24 AM"
       }
     }
   }

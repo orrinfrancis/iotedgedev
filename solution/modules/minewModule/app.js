@@ -41,20 +41,7 @@ Client.fromEnvironment(Transport, function (err, client) {
         });
         console.log(`Express is listening on ${expressRoute}`);
 
-        // Barnowl configuration
-        // console.log('Initializing BarnOwl...');
-        // let barnowl = new Barnowl({ enableMixing: true });
-        // let options = {
-        //   app: app, express: express, route: "/minew",
-        //   isPreOctetStream: false
-        // }; // Set true for G1 firmware v2/3
-        // barnowl.addListener(BarnowlMinew, {}, BarnowlMinew.HttpListener, options);
-        // barnowl.on('raddec', (raddec) => {
-        //   console.log(raddec);
-        //   pipeMessage(client, raddec)
-        // });
-        // console.log(`BarnOwl is listening on ${options.route}`);
-
+        // Create server
         let server = http.createServer(app);
         server.listen(3001, function () { console.log('Server is listening on port 3001'); });
       }
@@ -63,7 +50,8 @@ Client.fromEnvironment(Transport, function (err, client) {
 });
 
 function pipeMessage(client, output, msg) {
-  client.sendOutputEvent(output, new Message(msg), printResultFor('Sending received message'));
+  client.sendOutputEvent(output, new Message(msg))
+  // client.sendOutputEvent(output, new Message(msg), printResultFor('Sending received message'));
 }
 
 // Helper function to print results in the console
